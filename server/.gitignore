@@ -1,5 +1,5 @@
 ## .NET build output
-/bin/
+bin/
 obj/
 
 ## Visual Studio / Rider / VS Code
