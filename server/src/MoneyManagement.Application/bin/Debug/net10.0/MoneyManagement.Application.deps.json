@@ -1,0 +1,127 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "MoneyManagement.Application/1.0.0": {
+        "dependencies": {
+          "FluentValidation": "12.1.1",
+          "FluentValidation.DependencyInjectionExtensions": "12.1.1",
+          "Mapster": "10.0.12",
+          "Mapster.DependencyInjection": "10.0.12",
+          "MoneyManagement.Domain": "1.0.0"
+        },
+        "runtime": {
+          "MoneyManagement.Application.dll": {}
+        }
+      },
+      "FluentValidation/12.1.1": {
+        "runtime": {
+          "lib/net8.0/FluentValidation.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.1.1.0"
+          }
+        }
+      },
+      "FluentValidation.DependencyInjectionExtensions/12.1.1": {
+        "dependencies": {
+          "FluentValidation": "12.1.1"
+        },
+        "runtime": {
+          "lib/net8.0/FluentValidation.DependencyInjectionExtensions.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.1.1.0"
+          }
+        }
+      },
+      "Mapster/10.0.12": {
+        "dependencies": {
+          "Mapster.Core": "10.0.12"
+        },
+        "runtime": {
+          "lib/net10.0/Mapster.dll": {
+            "assemblyVersion": "10.0.12.0",
+            "fileVersion": "10.0.12.0"
+          }
+        }
+      },
+      "Mapster.Core/10.0.12": {
+        "runtime": {
+          "lib/netstandard2.0/Mapster.Core.dll": {
+            "assemblyVersion": "10.0.12.0",
+            "fileVersion": "10.0.12.0"
+          }
+        }
+      },
+      "Mapster.DependencyInjection/10.0.12": {
+        "dependencies": {
+          "Mapster": "10.0.12"
+        },
+        "runtime": {
+          "lib/net10.0/Mapster.DependencyInjection.dll": {
+            "assemblyVersion": "10.0.12.0",
+            "fileVersion": "10.0.12.0"
+          }
+        }
+      },
+      "MoneyManagement.Domain/1.0.0": {
+        "runtime": {
+          "MoneyManagement.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MoneyManagement.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FluentValidation/12.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EPpkIe1yh1a0OXyC100oOA8WMbZvqUu5plwhvYcb7oSELfyUZzfxV48BLhvs3kKo4NwG7MGLNgy1RJiYtT8Dpw==",
+      "path": "fluentvalidation/12.1.1",
+      "hashPath": "fluentvalidation.12.1.1.nupkg.sha512"
+    },
+    "FluentValidation.DependencyInjectionExtensions/12.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-D0VXh4dtjjX2aQizuaa0g6R8X3U1JaVqJPfGCvLwZX9t/O2h7tkpbitbadQMfwcgSPdDbI2vDxuwRMv/Uf9dHA==",
+      "path": "fluentvalidation.dependencyinjectionextensions/12.1.1",
+      "hashPath": "fluentvalidation.dependencyinjectionextensions.12.1.1.nupkg.sha512"
+    },
+    "Mapster/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ap0sVf4YxqYVSj2wafyrknuj2hWkWhpSm+SXTvrOQlc2vLG7u51dJ8GazaSHLLG6saHN5uPCBeP+YIqXS0a1vg==",
+      "path": "mapster/10.0.12",
+      "hashPath": "mapster.10.0.12.nupkg.sha512"
+    },
+    "Mapster.Core/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iLPB0xAzxMWKhbBjWb4ZdQMV/TNEuZafDOoONhtDjBD4bEmf6BwcZt2v0MHhS7xbjwi1JUR266XMarfEs9BUIw==",
+      "path": "mapster.core/10.0.12",
+      "hashPath": "mapster.core.10.0.12.nupkg.sha512"
+    },
+    "Mapster.DependencyInjection/10.0.12": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-74MA3f/Rz1ErO2wAbWd/9WE2ceHT5boKzrBUmbitkGRTGXNny3ECudZeRScl3wpQWhvRrWQykOqknPVdpMka9w==",
+      "path": "mapster.dependencyinjection/10.0.12",
+      "hashPath": "mapster.dependencyinjection.10.0.12.nupkg.sha512"
+    },
+    "MoneyManagement.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

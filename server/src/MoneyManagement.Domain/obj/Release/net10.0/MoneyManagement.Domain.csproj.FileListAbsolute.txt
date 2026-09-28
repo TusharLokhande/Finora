@@ -1,0 +1,11 @@
+/src/src/MoneyManagement.Domain/bin/Release/net10.0/MoneyManagement.Domain.deps.json
+/src/src/MoneyManagement.Domain/bin/Release/net10.0/MoneyManagement.Domain.dll
+/src/src/MoneyManagement.Domain/bin/Release/net10.0/MoneyManagement.Domain.pdb
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.AssemblyInfoInputs.cache
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.AssemblyInfo.cs
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.csproj.CoreCompileInputs.cache
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.dll
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/refint/MoneyManagement.Domain.dll
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/MoneyManagement.Domain.pdb
+/src/src/MoneyManagement.Domain/obj/Release/net10.0/ref/MoneyManagement.Domain.dll

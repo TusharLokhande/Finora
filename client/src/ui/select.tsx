@@ -1,0 +1,74 @@
+import ReactSelect, {
+  type GroupBase,
+  type Props as ReactSelectProps,
+} from "react-select"
+
+import { cn } from "@/lib/utils"
+
+export type SelectProps<
+  Option = unknown,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+> = ReactSelectProps<Option, IsMulti, Group> & {
+  "aria-invalid"?: boolean
+}
+
+function Select<
+  Option = unknown,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>({
+  "aria-invalid": ariaInvalid,
+  ...props
+}: SelectProps<Option, IsMulti, Group>) {
+  return (
+    <ReactSelect<Option, IsMulti, Group>
+      unstyled
+      classNames={{
+        control: ({ isFocused }) =>
+          cn(
+            "flex min-h-8 w-full items-center rounded-lg border bg-transparent px-2.5 py-0.5 text-base transition-colors md:text-sm",
+            ariaInvalid
+              ? "border-destructive"
+              : isFocused
+                ? "border-ring"
+                : "border-input",
+            isFocused && (ariaInvalid ? "ring-3 ring-destructive/20" : "ring-3 ring-ring/50"),
+          ),
+        placeholder: () => "text-muted-foreground",
+        input: () => "text-foreground",
+        singleValue: () => "text-foreground",
+        valueContainer: () => "gap-1 py-0.5",
+        indicatorsContainer: () => "gap-1",
+        indicatorSeparator: () => "my-1.5 w-px bg-border",
+        dropdownIndicator: () => "p-1 text-muted-foreground",
+        clearIndicator: () => "p-1 text-muted-foreground hover:text-foreground",
+        menu: () =>
+          "mt-1 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md",
+        menuList: () => "p-1",
+        menuPortal: () => "z-50",
+        option: ({ isFocused, isSelected }) =>
+          cn(
+            "cursor-pointer rounded-md px-2.5 py-1.5 text-sm",
+            isSelected
+              ? "bg-primary text-primary-foreground"
+              : isFocused
+                ? "bg-accent text-accent-foreground"
+                : "text-foreground",
+          ),
+        noOptionsMessage: () => "px-2.5 py-2 text-sm text-muted-foreground",
+        loadingMessage: () => "px-2.5 py-2 text-sm text-muted-foreground",
+        multiValue: () =>
+          "flex items-center gap-1 rounded-md bg-secondary py-0.5 pr-1 pl-2",
+        multiValueLabel: () => "text-sm text-secondary-foreground",
+        multiValueRemove: () =>
+          "rounded-sm text-muted-foreground hover:bg-destructive/20 hover:text-destructive",
+        groupHeading: () =>
+          "px-2.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase",
+      }}
+      {...props}
+    />
+  )
+}
+
+export { Select }

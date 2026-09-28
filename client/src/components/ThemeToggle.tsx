@@ -1,0 +1,38 @@
+import { Monitor, Moon, Sun } from "lucide-react";
+import { Button } from "@/ui/button";
+import { useThemeStore, type Theme } from "@/store/themeStore";
+
+const nextTheme: Record<Theme, Theme> = {
+  light: "dark",
+  dark: "system",
+  system: "light",
+};
+
+const icon: Record<Theme, typeof Sun> = {
+  light: Sun,
+  dark: Moon,
+  system: Monitor,
+};
+
+const label: Record<Theme, string> = {
+  light: "Light theme",
+  dark: "Dark theme",
+  system: "System theme",
+};
+
+export function ThemeToggle() {
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
+  const Icon = icon[theme];
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      aria-label={`${label[theme]}. Click to switch.`}
+      onClick={() => setTheme(nextTheme[theme])}
+    >
+      <Icon />
+    </Button>
+  );
+}
