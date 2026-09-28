@@ -3,11 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
+using MoneyManagement.Application.Features.Auth.Interfaces;
+using MoneyManagement.Application.Features.Categories.Interfaces;
 using MoneyManagement.Application.Interfaces.Repository;
 using MoneyManagement.Application.Interfaces.UnitOfWork;
 using MoneyManagement.Infrastructure.Auth;
 using MoneyManagement.Infrastructure.FileStorage;
 using MoneyManagement.Infrastructure.Monitoring.HealthChecks;
+using MoneyManagement.Domain.Entities;
+using MoneyManagement.Domain.Enums;
 using MoneyManagement.Infrastructure.Persistence;
 using MoneyManagement.Infrastructure.Persistence.Repository;
 
@@ -22,6 +26,10 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddHttpClient<IGoogleOAuthClient, GoogleOAuthClient>();
         services.AddScoped<ITokenService, JwtTokenService>();
@@ -41,5 +49,32 @@ public static class DependencyInjection
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await dbContext.Database.MigrateAsync();
+    }
+
+    public static async Task SeedDataAsync(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        const string adminEmail = "tlokhande00@gmail.com";
+        var admin = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+
+        if (admin is null)
+        {
+            dbContext.Users.Add(new User
+            {
+                Name = "Tushar Lokhande",
+                Email = adminEmail,
+                Role = UserRole.Admin,
+                Status = UserStatus.Approved,
+            });
+        }
+        else if (admin.Role != UserRole.Admin)
+        {
+            admin.Role = UserRole.Admin;
+            admin.UpdatedAtUtc = DateTime.UtcNow;
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 }

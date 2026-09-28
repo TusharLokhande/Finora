@@ -4,6 +4,10 @@ using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
 using MoneyManagement.Application.Common.Services;
+using MoneyManagement.Application.Features.Auth.Interfaces;
+using MoneyManagement.Application.Features.Auth.Services;
+using MoneyManagement.Application.Features.Categories.Interfaces;
+using MoneyManagement.Application.Features.Categories.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace MoneyManagement.Application;
@@ -14,6 +18,9 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddScoped<IValidationService, ValidationService>();
+
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         services.Configure<Common.ImportOptions>(configuration.GetSection("Import"));
         services.Configure<Common.JwtOptions>(configuration.GetSection("Jwt"));

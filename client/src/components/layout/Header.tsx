@@ -1,6 +1,7 @@
 import { Separator } from "@/ui/separator";
 import { SidebarTrigger } from "@/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/layout/UserMenu";
 
 export function Header() {
   return (
@@ -10,6 +11,7 @@ export function Header() {
       <p className="font-heading text-sm font-medium text-foreground">Finora</p>
       <div className="ml-auto flex items-center gap-2">
         <ThemeToggle />
+        <UserMenu />
       </div>
     </header>
   );

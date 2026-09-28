@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using DotNetEnv;
 using MoneyManagement.Api.Extensions;
 using MoneyManagement.Api.Filters;
@@ -17,7 +18,8 @@ if (File.Exists(envFilePath))
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>());
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -34,6 +36,7 @@ builder.Services.AddFrontendCors(builder.Configuration);
 var app = builder.Build();
 
 await app.Services.MigrateDatabaseAsync();
+await app.Services.SeedDataAsync();
 
 if (app.Environment.IsDevelopment())
 {

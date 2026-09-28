@@ -13,10 +13,10 @@ public class User
     public string? RejectionReason { get; set; }
     public string CurrencyCode { get; set; } = "INR";
     public string Timezone { get; set; } = "Asia/Kolkata";
+    
     public DateTime? EmailVerifiedAtUtc { get; set; }
     public DateTime? LastLoginAtUtc { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; set; }
-
     public UserSettings? Settings { get; set; }
 }
