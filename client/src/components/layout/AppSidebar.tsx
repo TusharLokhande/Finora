@@ -11,25 +11,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/ui/sidebar";
-import {
-  ArrowRightLeft,
-  BarChart3,
-  Home,
-  Landmark,
-  PiggyBank,
-  Tags,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
-
-const navItems: { title: string; url: string; icon: LucideIcon }[] = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Transactions", url: "/transactions", icon: ArrowRightLeft },
-  { title: "Accounts", url: "/accounts", icon: Landmark },
-  { title: "Categories", url: "/categories", icon: Tags },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Budgets", url: "/budgets", icon: PiggyBank },
-];
+import { Wallet } from "lucide-react";
+import { navItems } from "@/constants/routes.constants";
 
 export function AppSidebar() {
   const location = useLocation();

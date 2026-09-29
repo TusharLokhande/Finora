@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
+using MoneyManagement.Application.Features.Accounts.Interfaces;
 using MoneyManagement.Application.Features.Auth.Interfaces;
 using MoneyManagement.Application.Features.Categories.Interfaces;
+using MoneyManagement.Application.Features.Transactions.Interfaces;
 using MoneyManagement.Application.Interfaces.Repository;
 using MoneyManagement.Application.Interfaces.UnitOfWork;
 using MoneyManagement.Infrastructure.Auth;
@@ -30,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
 
         services.AddHttpClient<IGoogleOAuthClient, GoogleOAuthClient>();
         services.AddScoped<ITokenService, JwtTokenService>();

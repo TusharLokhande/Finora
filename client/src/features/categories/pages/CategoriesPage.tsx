@@ -4,6 +4,7 @@ import { Button } from "@/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/ui/tabs";
 import { Checkbox } from "@/ui/checkbox";
 import { Skeleton } from "@/ui/skeleton";
+import { PageBreadcrumb } from "@/components/layout/PageBreadcrumb";
 import { useCategories } from "../hooks/queries/useCategories";
 import { useArchiveCategory } from "../hooks/mutations/useArchiveCategory";
 import { useRestoreCategory } from "../hooks/mutations/useRestoreCategory";
@@ -46,7 +47,8 @@ export function CategoriesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 p-4 md:p-6">
+    <div className="flex w-full flex-col gap-5 p-4 md:p-6">
+      <PageBreadcrumb items={["Categories"]} />
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <h1 className="font-heading text-xl font-semibold text-foreground">Categories</h1>
