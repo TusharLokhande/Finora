@@ -9,7 +9,6 @@ RUN dotnet restore
 
 WORKDIR /src/src/MoneyManagement.Api/
 
-RUN ls -la
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 # =========================
@@ -24,7 +23,5 @@ ENV ASPNETCORE_HTTP_PORTS=8080
 COPY --from=build /app/publish .
 
 EXPOSE 8080
-
-COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "MoneyManagement.Api.dll"]

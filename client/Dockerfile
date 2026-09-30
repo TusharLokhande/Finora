@@ -6,7 +6,7 @@ FROM node:26-slim AS build
 
 WORKDIR /app
 
-ARG VITE_API_BASE_URL=/api
+ARG VITE_API_BASE_URL=http://localhost:5106/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Copy package files first for Docker caching
