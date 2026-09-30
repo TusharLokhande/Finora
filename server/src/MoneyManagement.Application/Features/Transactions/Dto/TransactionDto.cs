@@ -13,4 +13,10 @@ public class TransactionDto
     public Guid? CategoryId { get; set; }
     public string? Description { get; set; }
     public string? Notes { get; set; }
+
+    // Display names, populated by search; null on create.
+    public string? AccountName { get; set; }
+    public string? ToAccountName { get; set; }
+    public string? CategoryName { get; set; }
+    public string? ParentCategoryName { get; set; }
 }

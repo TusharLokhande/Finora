@@ -9,7 +9,13 @@ using MoneyManagement.Application.Features.Accounts.Services;
 using MoneyManagement.Application.Features.Auth.Interfaces;
 using MoneyManagement.Application.Features.Auth.Services;
 using MoneyManagement.Application.Features.Categories.Interfaces;
+using MoneyManagement.Application.Features.Budgets.Interfaces;
+using MoneyManagement.Application.Features.Budgets.Services;
 using MoneyManagement.Application.Features.Categories.Services;
+using MoneyManagement.Application.Features.Dashboard.Interfaces;
+using MoneyManagement.Application.Features.Dashboard.Services;
+using MoneyManagement.Application.Features.Reports.Interfaces;
+using MoneyManagement.Application.Features.Reports.Services;
 using MoneyManagement.Application.Features.Transactions.Interfaces;
 using MoneyManagement.Application.Features.Transactions.Services;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +33,11 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ITransactionService, TransactionService>();
+        services.AddScoped<IBudgetService, BudgetService>();
+        services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<Common.Services.UserClock>();
+        services.AddSingleton(TimeProvider.System);
 
         services.Configure<Common.ImportOptions>(configuration.GetSection("Import"));
         services.Configure<Common.JwtOptions>(configuration.GetSection("Jwt"));

@@ -15,7 +15,9 @@ public static class CorsExtensions
                 policy.WithOrigins(allowedOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowCredentials();
+                    .AllowCredentials()
+                    // Lets file downloads (exports) read the server-chosen file name.
+                    .WithExposedHeaders("Content-Disposition");
             });
         });
 

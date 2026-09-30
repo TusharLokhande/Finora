@@ -55,8 +55,10 @@ axiosClient.interceptors.response.use(
     const body = error.response?.data;
     const status = body?.status;
     const originalRequest = error.config as RetryableRequestConfig | undefined;
+    // JwtBearer's own challenge is a bare 401 with no ApiResponse body, so key off the HTTP status.
+    const isUnauthorized = error.response?.status === 401;
 
-    if (status === ErrorStatus.TokenExpired && originalRequest && !originalRequest._retried) {
+    if (isUnauthorized && originalRequest && !originalRequest._retried) {
       originalRequest._retried = true;
 
       try {
@@ -74,7 +76,7 @@ axiosClient.interceptors.response.use(
       }
     }
 
-    if (status === ErrorStatus.UnAuthorized) {
+    if (isUnauthorized) {
       useAuthStore.getState().clearAuth();
       window.location.href = "/login";
     }

@@ -4,6 +4,7 @@ using MoneyManagement.Application.Features.Accounts.Services;
 using MoneyManagement.Application.Features.Transactions.Services;
 using MoneyManagement.Domain.Entities;
 using MoneyManagement.Domain.Enums;
+using MoneyManagement.Infrastructure.Export;
 using MoneyManagement.Infrastructure.Persistence;
 using MoneyManagement.Infrastructure.Persistence.Repository;
 
@@ -54,7 +55,7 @@ public class AccountServicePayCardTests
         var categoryRepository = new CategoryRepository(context);
         var unitOfWork = new UnitOfWork(context);
 
-        var transactionService = new TransactionService(transactionRepository, accountRepository, categoryRepository, unitOfWork);
+        var transactionService = new TransactionService(transactionRepository, accountRepository, categoryRepository, unitOfWork, new ExcelExportWriter());
         var accountService = new AccountService(accountRepository, transactionRepository, transactionService, unitOfWork);
 
         return (context, accountService, userId, bank, card);

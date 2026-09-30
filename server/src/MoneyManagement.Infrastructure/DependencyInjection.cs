@@ -5,11 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
 using MoneyManagement.Application.Features.Accounts.Interfaces;
 using MoneyManagement.Application.Features.Auth.Interfaces;
+using MoneyManagement.Application.Features.Budgets.Interfaces;
 using MoneyManagement.Application.Features.Categories.Interfaces;
 using MoneyManagement.Application.Features.Transactions.Interfaces;
 using MoneyManagement.Application.Interfaces.Repository;
 using MoneyManagement.Application.Interfaces.UnitOfWork;
 using MoneyManagement.Infrastructure.Auth;
+using MoneyManagement.Infrastructure.Export;
 using MoneyManagement.Infrastructure.FileStorage;
 using MoneyManagement.Infrastructure.Monitoring.HealthChecks;
 using MoneyManagement.Domain.Entities;
@@ -34,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IBudgetRepository, BudgetRepository>();
+        services.AddScoped<IExcelExportWriter, ExcelExportWriter>();
 
         services.AddHttpClient<IGoogleOAuthClient, GoogleOAuthClient>();
         services.AddScoped<ITokenService, JwtTokenService>();

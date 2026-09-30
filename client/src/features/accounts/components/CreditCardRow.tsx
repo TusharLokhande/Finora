@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
 } from "@/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import type { UsageTone } from "@/lib/usageTone";
+import { UsageBar } from "@/components/UsageBar";
 import { formatCurrency } from "@/lib/currency";
 import { ACCOUNT_TYPE_COLORS } from "../constants/accountTypes";
 import type { Account } from "../types/account.types";
@@ -36,10 +38,10 @@ const CHIP_STYLES: Record<Urgency, string> = {
   red: "bg-destructive/10 text-destructive",
 };
 
-const BAR_STYLES: Record<Urgency, string> = {
-  neutral: "bg-primary",
-  amber: "bg-amber-500",
-  red: "bg-destructive",
+const BAR_TONE: Record<Urgency, UsageTone> = {
+  neutral: "normal",
+  amber: "warning",
+  red: "over",
 };
 
 interface CreditCardRowProps {
@@ -125,12 +127,7 @@ export function CreditCardRow({ account, onEdit, onArchive, onRestore, onPay }: 
       </div>
 
       <div className="flex items-center gap-2 pl-11">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn("h-full rounded-full transition-all", BAR_STYLES[due?.urgency ?? "neutral"])}
-            style={{ width: `${utilization}%` }}
-          />
-        </div>
+        <UsageBar className="flex-1" percent={utilization} tone={BAR_TONE[due?.urgency ?? "neutral"]} />
         <span className="w-12 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
           {Math.round(utilization)}% used
         </span>

@@ -67,6 +67,15 @@ function Select<
           "px-2.5 py-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase",
       }}
       {...props}
+      // react-select puts an inline z-index: 1 on the portal, which beats the z-50 class above
+      // and lets sticky/elevated content cover a menu portaled to <body>.
+      styles={{
+        ...props.styles,
+        menuPortal: (base, state) => ({
+          ...(props.styles?.menuPortal?.(base, state) ?? base),
+          zIndex: 50,
+        }),
+      }}
     />
   )
 }
