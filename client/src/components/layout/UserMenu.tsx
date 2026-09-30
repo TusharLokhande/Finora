@@ -1,4 +1,6 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
+import { initials } from "@/lib/utils";
 import { useLogout } from "@/features/auth";
 import { useAuthStore } from "@/store/authStore";
 import { Avatar, AvatarFallback } from "@/ui/avatar";
@@ -10,15 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]!.toUpperCase())
-    .join("");
-}
 
 export function UserMenu() {
   const user = useAuthStore((state) => state.user);
@@ -41,6 +34,12 @@ export function UserMenu() {
           <p className="text-xs text-muted-foreground">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/settings">
+            <Settings />
+            Settings
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem variant="destructive" disabled={logout.isPending} onSelect={() => logout.mutate()}>
           <LogOut />
           Log out

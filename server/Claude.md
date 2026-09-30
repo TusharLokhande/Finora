@@ -234,3 +234,14 @@ public class ProductConfiguration : BaseConfiguration<Product>
 - EF Core + Npgsql (PostgreSQL)
 - FluentValidation, Mapster
 - xUnit for tests
+
+## Observability
+- Logs: Serilog → console; also pushed to Loki when `Observability:LokiUrl` is set (labels `app`, `env`). Levels live in the `Serilog` section of appsettings.
+- Metrics: Prometheus scrape endpoint at `/metrics` (unauthenticated, keep it off the public proxy).
+  ```yaml
+  - job_name: finora-api
+    metrics_path: /metrics
+    static_configs: [{ targets: ["api:8080"] }]
+  ```
+- Traces: OTLP to Tempo/Collector when `Observability:OtlpEndpoint` is set (ASP.NET Core, HttpClient, Npgsql spans). Loki logs carry `TraceId`; add a Loki derived field on it in Grafana to jump to Tempo.
+- Dashboard: `docker compose up -d` (repo root) starts Postgres plus Prometheus/Loki/Tempo/Grafana (http://localhost:3000, dashboard preloaded). Or import `monitoring/grafana/dashboards/finora-api.json` in Grafana and pick your Prometheus and Loki datasources.

@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
+using MoneyManagement.Application.Features.Access.Interfaces;
 using MoneyManagement.Application.Features.Accounts.Interfaces;
 using MoneyManagement.Application.Features.Auth.Interfaces;
 using MoneyManagement.Application.Features.Budgets.Interfaces;
+using MoneyManagement.Application.Features.Settings.Interfaces;
 using MoneyManagement.Application.Features.Categories.Interfaces;
 using MoneyManagement.Application.Features.Transactions.Interfaces;
 using MoneyManagement.Application.Interfaces.Repository;
@@ -33,6 +35,9 @@ public static class DependencyInjection
 
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+        services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
+        services.AddScoped<IAppSettingRepository, AppSettingRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -59,27 +64,30 @@ public static class DependencyInjection
         await dbContext.Database.MigrateAsync();
     }
 
-    public static async Task SeedDataAsync(this IServiceProvider serviceProvider)
+    public static async Task SeedDataAsync(this IServiceProvider serviceProvider, string? adminEmail)
     {
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        const string adminEmail = "tlokhande00@gmail.com";
+        if (string.IsNullOrWhiteSpace(adminEmail))
+            return;
+
         var admin = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
 
         if (admin is null)
         {
             dbContext.Users.Add(new User
             {
-                Name = "Tushar Lokhande",
+                Name = adminEmail,
                 Email = adminEmail,
                 Role = UserRole.Admin,
                 Status = UserStatus.Approved,
             });
         }
-        else if (admin.Role != UserRole.Admin)
+        else if (admin.Role != UserRole.Admin || admin.Status != UserStatus.Approved)
         {
             admin.Role = UserRole.Admin;
+            admin.Status = UserStatus.Approved;
             admin.UpdatedAtUtc = DateTime.UtcNow;
         }
 

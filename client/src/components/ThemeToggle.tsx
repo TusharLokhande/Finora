@@ -1,5 +1,6 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/ui/button";
+import { useUpdatePreferences } from "@/features/settings";
 import { useThemeStore, type Theme } from "@/store/themeStore";
 
 const nextTheme: Record<Theme, Theme> = {
@@ -22,7 +23,7 @@ const label: Record<Theme, string> = {
 
 export function ThemeToggle() {
   const theme = useThemeStore((s) => s.theme);
-  const setTheme = useThemeStore((s) => s.setTheme);
+  const update = useUpdatePreferences(); // saves to the server too, otherwise the synced server value would revert this
   const Icon = icon[theme];
 
   return (
@@ -30,7 +31,10 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       aria-label={`${label[theme]}. Click to switch.`}
-      onClick={() => setTheme(nextTheme[theme])}
+      onClick={() => {
+        const next = nextTheme[theme];
+        update.mutate({ theme: (next[0].toUpperCase() + next.slice(1)) as "Light" | "Dark" | "System" });
+      }}
     >
       <Icon />
     </Button>

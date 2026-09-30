@@ -1,9 +1,10 @@
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Interfaces;
+using MoneyManagement.Domain.Enums;
 
 namespace MoneyManagement.Application.Features.Auth.Interfaces;
 
-public record AuthUserDto(Guid Id, string Name, string Email);
+public record AuthUserDto(Guid Id, string Name, string Email, UserRole Role, UserStatus Status, string? Reason);
 
 public record AuthResultDto(string AccessToken, int ExpiresInSeconds, AuthUserDto User);
 
@@ -16,6 +17,8 @@ public interface IAuthService
     GoogleAuthorizationRequest BuildGoogleAuthorizationRequest();
 
     Task<Result<RawRefreshToken>> HandleGoogleCallbackAsync(string code, string codeVerifier, CancellationToken cancellationToken = default);
+
+    Task<Result<AuthUserDto>> GetMeAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<Result<RefreshedSession>> RefreshAsync(string rawRefreshToken, CancellationToken cancellationToken = default);
 

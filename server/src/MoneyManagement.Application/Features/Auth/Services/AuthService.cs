@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Options;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Interfaces;
+using MoneyManagement.Application.Features.Access.Interfaces;
 using MoneyManagement.Application.Features.Auth.Interfaces;
 using MoneyManagement.Application.Interfaces.UnitOfWork;
 using MoneyManagement.Domain.Entities;
@@ -15,7 +15,7 @@ public class AuthService : IAuthService
     private readonly IGoogleOAuthClient _googleOAuthClient;
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly AuthOptions _authOptions;
+    private readonly IAppSettingRepository _settings;
 
     public AuthService(
         IUserRepository users,
@@ -23,14 +23,14 @@ public class AuthService : IAuthService
         IGoogleOAuthClient googleOAuthClient,
         ITokenService tokenService,
         IUnitOfWork unitOfWork,
-        IOptions<AuthOptions> authOptions)
+        IAppSettingRepository settings)
     {
         _users = users;
         _refreshTokens = refreshTokens;
         _googleOAuthClient = googleOAuthClient;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
-        _authOptions = authOptions.Value;
+        _settings = settings;
     }
 
     public GoogleAuthorizationRequest BuildGoogleAuthorizationRequest()
@@ -45,20 +45,19 @@ public class AuthService : IAuthService
         var tokenResult = await _googleOAuthClient.ExchangeCodeAsync(code, codeVerifier, cancellationToken);
         var identity = await _googleOAuthClient.ValidateIdTokenAsync(tokenResult.IdToken, cancellationToken);
 
-        var isAllowed = _authOptions.AllowedEmails
-            .Any(email => string.Equals(email, identity.Email, StringComparison.OrdinalIgnoreCase));
-        if (!isAllowed)
-            return Result<RawRefreshToken>.Failure("This email is not on the invite list.", ErrorStatus.Forbidden);
-
         var user = await _users.GetByEmailAsync(identity.Email, cancellationToken);
         var now = DateTime.UtcNow;
 
         if (user is null)
         {
+            if (!await _settings.GetSignupsOpenAsync(cancellationToken))
+                return Result<RawRefreshToken>.Failure("We're not accepting new requests right now.", ErrorStatus.Forbidden);
+
             user = new User
             {
                 Name = identity.Name,
                 Email = identity.Email,
+                Status = UserStatus.Pending,
                 EmailVerifiedAtUtc = now,
                 LastLoginAtUtc = now,
             };
@@ -66,9 +65,6 @@ public class AuthService : IAuthService
         }
         else
         {
-            if (user.Status is UserStatus.Suspended or UserStatus.Rejected)
-                return Result<RawRefreshToken>.Failure("This account can no longer sign in.", ErrorStatus.Forbidden);
-
             user.EmailVerifiedAtUtc ??= now;
             user.LastLoginAtUtc = now;
             _users.Update(user);
@@ -87,6 +83,14 @@ public class AuthService : IAuthService
         return Result<RawRefreshToken>.Success(refreshToken);
     }
 
+    public async Task<Result<AuthUserDto>> GetMeAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _users.GetByIdAsync(userId, cancellationToken);
+        return user is null
+            ? Result<AuthUserDto>.Failure("Not signed in.", ErrorStatus.UnAuthorized)
+            : Result<AuthUserDto>.Success(ToDto(user));
+    }
+
     public async Task<Result<RefreshedSession>> RefreshAsync(string rawRefreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(rawRefreshToken))
@@ -99,7 +103,7 @@ public class AuthService : IAuthService
             return Result<RefreshedSession>.Failure("Session expired. Please sign in again.", ErrorStatus.UnAuthorized);
 
         var user = await _users.GetByIdAsync(existing.UserId, cancellationToken);
-        if (user is null || user.Status is UserStatus.Suspended or UserStatus.Rejected)
+        if (user is null)
             return Result<RefreshedSession>.Failure("Session expired. Please sign in again.", ErrorStatus.UnAuthorized);
 
         existing.RevokedAtUtc = DateTime.UtcNow;
@@ -117,10 +121,7 @@ public class AuthService : IAuthService
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var resultDto = new AuthResultDto(
-            accessToken.Value,
-            accessToken.ExpiresInSeconds,
-            new AuthUserDto(user.Id, user.Name, user.Email));
+        var resultDto = new AuthResultDto(accessToken.Value, accessToken.ExpiresInSeconds, ToDto(user));
 
         return Result<RefreshedSession>.Success(new RefreshedSession(resultDto, newRefreshToken));
     }
@@ -139,4 +140,7 @@ public class AuthService : IAuthService
         _refreshTokens.Update(existing);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
+
+    private static AuthUserDto ToDto(User user)
+        => new(user.Id, user.Name, user.Email, user.Role, user.Status, user.RejectionReason);
 }

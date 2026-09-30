@@ -1,0 +1,114 @@
+{
+  "title": "Finora API",
+  "uid": "finora-api",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "tags": ["finora", "dotnet"],
+  "templating": {
+    "list": [
+      { "name": "ds_prom", "label": "Prometheus", "type": "datasource", "query": "prometheus" },
+      { "name": "ds_loki", "label": "Loki", "type": "datasource", "query": "loki" },
+      {
+        "name": "job", "label": "Job", "type": "query",
+        "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+        "query": "label_values(http_server_request_duration_seconds_count, job)",
+        "refresh": 2, "includeAll": false, "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Requests / s",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "targets": [ { "refId": "A", "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"$job\"}[$__rate_interval]))" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "5xx error rate",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0.01 }, { "color": "red", "value": 0.05 } ] } } },
+      "options": { "colorMode": "background" },
+      "targets": [ { "refId": "A", "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"$job\",http_response_status_code=~\"5..\"}[$__rate_interval])) / sum(rate(http_server_request_duration_seconds_count{job=\"$job\"}[$__rate_interval]))" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "p95 latency",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0.5 }, { "color": "red", "value": 1 } ] } } },
+      "options": { "colorMode": "background" },
+      "targets": [ { "refId": "A", "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{job=\"$job\"}[$__rate_interval])))" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Errors (log, selected range)",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "loki", "uid": "${ds_loki}" },
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } } },
+      "options": { "colorMode": "background" },
+      "targets": [ { "refId": "A", "queryType": "instant", "expr": "sum(count_over_time({app=\"finora-api\"} | json | Level=~\"Error|Fatal\" [$__range]))" } ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Requests / s by status",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "targets": [ { "refId": "A", "legendFormat": "{{http_response_status_code}}", "expr": "sum by (http_response_status_code) (rate(http_server_request_duration_seconds_count{job=\"$job\"}[$__rate_interval]))" } ]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "p95 latency by route",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [ { "refId": "A", "legendFormat": "{{http_request_method}} {{http_route}}", "expr": "histogram_quantile(0.95, sum by (le, http_route, http_request_method) (rate(http_server_request_duration_seconds_bucket{job=\"$job\"}[$__rate_interval])))" } ]
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "Memory (working set)",
+      "gridPos": { "x": 0, "y": 12, "w": 8, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "targets": [ { "refId": "A", "legendFormat": "working set", "expr": "dotnet_process_memory_working_set_bytes{job=\"$job\"}" } ]
+    },
+    {
+      "id": 8, "type": "timeseries", "title": "CPU (cores)",
+      "gridPos": { "x": 8, "y": 12, "w": 8, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [ { "refId": "A", "legendFormat": "cpu", "expr": "sum(rate(dotnet_process_cpu_time_seconds_total{job=\"$job\"}[$__rate_interval]))" } ]
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "GC collections / s by generation",
+      "gridPos": { "x": 16, "y": 12, "w": 8, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "targets": [ { "refId": "A", "legendFormat": "gen {{generation}}", "expr": "sum by (generation) (rate(dotnet_gc_collections_total{job=\"$job\"}[$__rate_interval]))" } ]
+    },
+    {
+      "id": 10, "type": "timeseries", "title": "Npgsql connections (by state)",
+      "gridPos": { "x": 0, "y": 19, "w": 12, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "targets": [ { "refId": "A", "legendFormat": "{{db_client_connection_state}}", "expr": "sum by (db_client_connection_state) (db_client_connection_count{job=\"$job\"})" } ]
+    },
+    {
+      "id": 11, "type": "timeseries", "title": "Thread pool threads",
+      "gridPos": { "x": 12, "y": 19, "w": 12, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "${ds_prom}" },
+      "targets": [ { "refId": "A", "legendFormat": "threads", "expr": "dotnet_thread_pool_thread_count{job=\"$job\"}" } ]
+    },
+    {
+      "id": 12, "type": "timeseries", "title": "Log volume by level",
+      "gridPos": { "x": 0, "y": 26, "w": 24, "h": 6 },
+      "datasource": { "type": "loki", "uid": "${ds_loki}" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } } } },
+      "targets": [ { "refId": "A", "legendFormat": "{{Level}}", "expr": "sum by (Level) (count_over_time({app=\"finora-api\"} | json [$__interval]))" } ]
+    },
+    {
+      "id": 13, "type": "logs", "title": "Errors and warnings",
+      "gridPos": { "x": 0, "y": 32, "w": 24, "h": 10 },
+      "datasource": { "type": "loki", "uid": "${ds_loki}" },
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending" },
+      "targets": [ { "refId": "A", "expr": "{app=\"finora-api\"} | json | Level=~\"Warning|Error|Fatal\"" } ]
+    }
+  ]
+}

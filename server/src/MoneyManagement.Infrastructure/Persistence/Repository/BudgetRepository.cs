@@ -17,6 +17,11 @@ public class BudgetRepository : Repository<Budget>, IBudgetRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Budget>> GetAllForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking().Where(b => b.UserId == userId).ToListAsync(cancellationToken);
+    }
+
     public async Task<Budget?> GetForCategoryMonthAsync(Guid userId, Guid categoryId, DateOnly month, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FirstOrDefaultAsync(

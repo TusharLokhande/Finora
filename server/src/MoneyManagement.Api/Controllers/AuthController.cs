@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MoneyManagement.Api.Common;
@@ -12,14 +13,16 @@ namespace MoneyManagement.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private const string PkceCookieName = "finora_oauth_pkce";
-    private const string RefreshCookieName = "finora_refresh_token";
+    public const string RefreshCookieName = "finora_refresh_token";
 
     private readonly IAuthService _authService;
+    private readonly ICurrentUserService _currentUser;
     private readonly AuthOptions _authOptions;
 
-    public AuthController(IAuthService authService, IOptions<AuthOptions> authOptions)
+    public AuthController(IAuthService authService, ICurrentUserService currentUser, IOptions<AuthOptions> authOptions)
     {
         _authService = authService;
+        _currentUser = currentUser;
         _authOptions = authOptions.Value;
     }
 
@@ -56,12 +59,17 @@ public class AuthController : ControllerBase
 
         var result = await _authService.HandleGoogleCallbackAsync(code, parts[1], cancellationToken);
         if (!result.IsSuccess)
-            return Redirect(loginErrorUrl);
+            return Redirect(result.ErrorStatus == ErrorStatus.Forbidden ? $"{_authOptions.FrontendBaseUrl}{_authOptions.LoginErrorPath}?error=closed" : loginErrorUrl);
 
         SetRefreshTokenCookie(result.Data!);
 
         return Redirect($"{_authOptions.FrontendBaseUrl}{_authOptions.PostLoginPath}");
     }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
+        => (await _authService.GetMeAsync(_currentUser.UserId!.Value, cancellationToken)).ToActionResult();
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(CancellationToken cancellationToken)

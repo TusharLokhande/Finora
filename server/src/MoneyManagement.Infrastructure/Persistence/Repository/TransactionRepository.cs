@@ -16,6 +16,11 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
     {
     }
 
+    public async Task<IReadOnlyList<Transaction>> GetAllForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking().Where(t => t.UserId == userId).ToListAsync(cancellationToken);
+    }
+
     public async Task<Transaction?> GetByIdForUserAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId, cancellationToken);

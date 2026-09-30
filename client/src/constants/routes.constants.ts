@@ -4,6 +4,7 @@ import {
   Home,
   Landmark,
   PiggyBank,
+  ShieldCheck,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -22,3 +23,6 @@ export const navItems: NavItem[] = [
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Budgets", url: "/budgets", icon: PiggyBank },
 ];
+
+/** Shown only to admins. */
+export const accessNavItem: NavItem = { title: "Access", url: "/access", icon: ShieldCheck };

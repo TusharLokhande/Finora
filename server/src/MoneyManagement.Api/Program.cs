@@ -17,6 +17,7 @@ if (File.Exists(envFilePath))
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddObservability();
 
 builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -36,7 +37,7 @@ builder.Services.AddFrontendCors(builder.Configuration);
 var app = builder.Build();
 
 await app.Services.MigrateDatabaseAsync();
-await app.Services.SeedDataAsync();
+await app.Services.SeedDataAsync(builder.Configuration["Auth:AdminEmail"]);
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,6 +45,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHangfireDashboardInDevelopment();
+
+app.UseRequestLogging();
 
 app.UseExceptionHandlingMiddleware();
 
@@ -53,9 +56,11 @@ app.UseFrontendCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserStatusMiddleware>();
 
 app.MapControllers();
 
 app.MapAppHealthChecks();
+app.MapAppMetrics();
 
 app.Run();

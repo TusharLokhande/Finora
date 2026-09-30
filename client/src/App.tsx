@@ -4,18 +4,22 @@ import { queryClient } from "@/api/queryClient";
 import { NotFoundPage } from "@/components/NotFoundPage";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { AuthCallbackPage, LoginPage, RequireAuth } from "@/features/auth";
+import { AccessPage } from "@/features/access";
 import { AccountsPage } from "@/features/accounts";
 import { CategoriesPage } from "@/features/categories";
 import { TransactionsPage } from "@/features/transactions";
 import { HomePage } from "@/features/dashboard";
 import { BudgetsPage } from "@/features/budgets";
+import { SettingsPage } from "@/features/settings";
 import { ReportsPage } from "@/features/reports";
+import { useAppliedDensity } from "@/hooks/useAppliedDensity";
 import { useAppliedTheme } from "@/hooks/useAppliedTheme";
 import { TooltipProvider } from "@/ui/tooltip";
 import { Toaster } from "@/ui/sonner";
 
 function App() {
   useAppliedTheme();
+  useAppliedDensity();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,6 +37,8 @@ function App() {
                 <Route path="categories" element={<CategoriesPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="budgets" element={<BudgetsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="access" element={<AccessPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

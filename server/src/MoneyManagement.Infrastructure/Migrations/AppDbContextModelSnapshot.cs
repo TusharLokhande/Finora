@@ -88,6 +88,59 @@ namespace MoneyManagement.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MoneyManagement.Domain.Entities.AdminAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("AdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TargetEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<Guid?>("TargetUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminUserId");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.ToTable("AdminAuditLog", (string)null);
+                });
+
+            modelBuilder.Entity("MoneyManagement.Domain.Entities.AppSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("AppSettings", (string)null);
+                });
+
             modelBuilder.Entity("MoneyManagement.Domain.Entities.Budget", b =>
                 {
                     b.Property<Guid>("Id")
@@ -406,6 +459,15 @@ namespace MoneyManagement.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MoneyManagement.Domain.Entities.AdminAuditLog", b =>
+                {
+                    b.HasOne("MoneyManagement.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("AdminUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MoneyManagement.Domain.Entities.Budget", b =>

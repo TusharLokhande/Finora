@@ -12,10 +12,14 @@ import {
   SidebarRail,
 } from "@/ui/sidebar";
 import { Wallet } from "lucide-react";
-import { navItems } from "@/constants/routes.constants";
+import { accessNavItem, navItems } from "@/constants/routes.constants";
+import { AccessNavBadge } from "@/features/access";
+import { useMe } from "@/features/auth";
 
 export function AppSidebar() {
   const location = useLocation();
+  const { data: me } = useMe();
+  const items = me?.role === "Admin" ? [...navItems, accessNavItem] : navItems;
 
   return (
     <Sidebar collapsible="icon">
@@ -39,7 +43,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {items.map((item) => {
                 const isActive =
                   item.url === "/"
                     ? location.pathname === "/"
@@ -53,6 +57,7 @@ export function AppSidebar() {
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
+                    {item === accessNavItem && <AccessNavBadge />}
                   </SidebarMenuItem>
                 );
               })}

@@ -1,9 +1,7 @@
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
+  "Observability": {
+    "LokiUrl": "",
+    "OtlpEndpoint": ""
   },
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Port=5432;Database=appdb;Username=admin;Password=change-me",
@@ -17,6 +15,6 @@
     "ClientSecret": ""
   },
   "Auth": {
-    "AllowedEmails": ["you@example.com"]
+    "AdminEmail": "you@example.com"
   }
 }

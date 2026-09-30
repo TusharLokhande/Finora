@@ -4,6 +4,8 @@ using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using MoneyManagement.Application.Common.Interfaces;
 using MoneyManagement.Application.Common.Services;
+using MoneyManagement.Application.Features.Access.Interfaces;
+using MoneyManagement.Application.Features.Access.Services;
 using MoneyManagement.Application.Features.Accounts.Interfaces;
 using MoneyManagement.Application.Features.Accounts.Services;
 using MoneyManagement.Application.Features.Auth.Interfaces;
@@ -14,6 +16,8 @@ using MoneyManagement.Application.Features.Budgets.Services;
 using MoneyManagement.Application.Features.Categories.Services;
 using MoneyManagement.Application.Features.Dashboard.Interfaces;
 using MoneyManagement.Application.Features.Dashboard.Services;
+using MoneyManagement.Application.Features.Settings.Interfaces;
+using MoneyManagement.Application.Features.Settings.Services;
 using MoneyManagement.Application.Features.Reports.Interfaces;
 using MoneyManagement.Application.Features.Reports.Services;
 using MoneyManagement.Application.Features.Transactions.Interfaces;
@@ -31,6 +35,8 @@ public static class DependencyInjection
 
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAccessService, AccessService>();
+        services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IBudgetService, BudgetService>();

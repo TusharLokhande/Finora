@@ -15,6 +15,9 @@ public interface ITransactionRepository : IRepository<Transaction>
     Task<IReadOnlyDictionary<Guid, long>> GetBalanceDeltasAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>Includes soft-deleted transactions, so restore can find them.</summary>
+    /// <summary>Every transaction the user owns, inactive included (used by the data export).</summary>
+    Task<IReadOnlyList<Transaction>> GetAllForUserAsync(Guid userId, CancellationToken cancellationToken = default);
+
     Task<Transaction?> GetByIdForUserAsync(Guid userId, Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>Includes soft-deleted transactions. Ids that don't belong to the user are simply absent.</summary>

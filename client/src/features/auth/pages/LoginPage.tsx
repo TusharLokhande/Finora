@@ -2,11 +2,12 @@ import { ShieldCheck, Wallet } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/ui/button";
 import { GoogleIcon } from "@/features/auth/components/GoogleIcon";
-import { ACCESS_REQUEST_MAILTO, GOOGLE_LOGIN_URL } from "@/features/auth/constants/auth.constants";
+import { GOOGLE_LOGIN_URL } from "@/features/auth/constants/auth.constants";
 
 export function LoginPage() {
   const [searchParams] = useSearchParams();
-  const hasError = searchParams.has("error");
+  const error = searchParams.get("error");
+  const deleted = searchParams.has("deleted");
 
   return (
     <div className="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-background px-4">
@@ -53,9 +54,17 @@ export function LoginPage() {
             See where your money&apos;s going, all in one place.
           </p>
 
-          {hasError && (
+          {deleted && (
+            <p className="mt-4 rounded-lg bg-muted px-3 py-2 text-center text-xs text-muted-foreground">
+              Your account has been deleted.
+            </p>
+          )}
+
+          {error && (
             <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-center text-xs text-destructive">
-              We couldn&apos;t sign you in. Your Google account may not be approved yet.
+              {error === "closed"
+                ? "We're not accepting new requests right now. Please check back later."
+                : "We couldn't sign you in. Please try again."}
             </p>
           )}
 
@@ -76,7 +85,7 @@ export function LoginPage() {
           </div>
 
           <Button asChild variant="secondary" size="lg" className="w-full rounded-full">
-            <a href={ACCESS_REQUEST_MAILTO}>
+            <a href={GOOGLE_LOGIN_URL}>
               <ShieldCheck />
               Ask for approval
             </a>
@@ -84,7 +93,7 @@ export function LoginPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Finora is invite-only. Access requests are reviewed by the team.
+          Finora is invite-only. Access requests are reviewed by the owner.
         </p>
       </div>
     </div>
