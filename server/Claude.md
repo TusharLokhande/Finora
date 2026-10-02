@@ -42,7 +42,6 @@ backend/
         Constants/
           AppConstants.cs
         Interfaces/
-          IFileStorageService.cs  -> contract only; implementation lives in Infrastructure
           ICurrentUserService.cs
 
       Features/
@@ -79,8 +78,6 @@ backend/
       Monitoring/
         LoggingService.cs
         HealthChecks/
-      FileStorage/
-        AzureBlobFileStorageService.cs -> implements IFileStorageService (Azure Blob Storage / Azurite)
       ExternalServices/
         EmailService.cs
 
