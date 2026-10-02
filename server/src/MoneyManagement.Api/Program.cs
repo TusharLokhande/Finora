@@ -9,7 +9,11 @@ using MoneyManagement.Application.Common.Interfaces;
 using MoneyManagement.Infrastructure;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-var envFilePath = Path.Combine(Directory.GetCurrentDirectory(), $".env");
+var envFilePath = Path.Combine(Directory.GetCurrentDirectory(), $".env.{environmentName.ToLowerInvariant()}");
+if (!File.Exists(envFilePath))
+{
+    envFilePath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+}
 if (File.Exists(envFilePath))
 {
     Env.Load(envFilePath);
@@ -17,7 +21,6 @@ if (File.Exists(envFilePath))
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddObservability();
 
 builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -42,11 +45,11 @@ await app.Services.SeedDataAsync(builder.Configuration["Auth:AdminEmail"]);
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Finora API v1"));
 }
 
 app.UseHangfireDashboardInDevelopment();
 
-app.UseRequestLogging();
 
 app.UseExceptionHandlingMiddleware();
 
@@ -61,6 +64,5 @@ app.UseMiddleware<UserStatusMiddleware>();
 app.MapControllers();
 
 app.MapAppHealthChecks();
-app.MapAppMetrics();
 
 app.Run();
