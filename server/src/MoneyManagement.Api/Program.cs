@@ -20,6 +20,7 @@ if (File.Exists(envFilePath))
 }
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddObservability();
 
 
 builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
@@ -42,11 +43,9 @@ var app = builder.Build();
 await app.Services.MigrateDatabaseAsync();
 await app.Services.SeedDataAsync(builder.Configuration["Auth:AdminEmail"]);
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Finora API v1"));
-}
+
+app.MapOpenApi();
+app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Finora API v1"));
 
 app.UseHangfireDashboardInDevelopment();
 

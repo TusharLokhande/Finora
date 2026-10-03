@@ -1,0 +1,51 @@
+services:
+  api:
+    image: ghcr.io/tusharlokhande/finora-api:dev
+    env_file: ./server/src/MoneyManagement.Api/.env.dev
+    networks: [default, observability, proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.finora-api.rule=Host(`api-finora-dev.efficanova.com`)
+      - traefik.http.routers.finora-api.entrypoints=websecure
+      - traefik.http.routers.finora-api.tls.certresolver=letsencrypt
+      - traefik.http.services.finora-api.loadbalancer.server.port=8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  client:
+    image: ghcr.io/tusharlokhande/finora-client:dev
+    networks: [default, proxy]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.finora-client.rule=Host(`finora-dev.efficanova.com`)
+      - traefik.http.routers.finora-client.entrypoints=websecure
+      - traefik.http.routers.finora-client.tls.certresolver=letsencrypt
+      - traefik.http.services.finora-client.loadbalancer.server.port=80
+    depends_on: [api]
+
+  postgres:
+    image: postgres:18
+    container_name: postgres_db
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-appdb}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-appdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  observability:
+    external: true
+  proxy:
+    external: true

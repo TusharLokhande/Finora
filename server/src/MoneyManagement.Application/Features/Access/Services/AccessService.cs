@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Dashboard;
 using MoneyManagement.Application.Common.Interfaces;
@@ -18,19 +19,22 @@ public class AccessService : IAccessService
     private readonly IAppSettingRepository _settings;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AccessService> _logger;
 
     public AccessService(
         IUserRepository users,
         IAdminAuditLogRepository audit,
         IAppSettingRepository settings,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<AccessService> logger)
     {
         _users = users;
         _audit = audit;
         _settings = settings;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<Result<MemberListDto>> GetMembersAsync(string? status, CancellationToken cancellationToken = default)
@@ -80,6 +84,7 @@ public class AccessService : IAccessService
             await _settings.SetSignupsOpenAsync(request.SignupsOpen, cancellationToken);
             await _audit.AddAsync(NewEntry(AdminAction.ToggleSignups, null, request.SignupsOpen ? "Accepting new requests" : "Not accepting new requests"), cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Admin {AdminId} set signups open = {SignupsOpen}", _currentUser.UserId, request.SignupsOpen);
         }
 
         return Result<AccessSettingsDto>.Success(new AccessSettingsDto(request.SignupsOpen));
@@ -106,6 +111,7 @@ public class AccessService : IAccessService
         _users.Update(user);
         await _audit.AddAsync(NewEntry(action, user, null), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Admin {AdminId} performed {Action} on user {TargetUserId}", _currentUser.UserId, action, user.Id);
 
         return Result<MemberDto>.Success(ToDto(user));
     }
@@ -120,6 +126,7 @@ public class AccessService : IAccessService
         await _audit.AddAsync(NewEntry(action, user, string.IsNullOrEmpty(reason) ? null : reason), cancellationToken);
         await _users.RemoveWithDataAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogWarning("Admin {AdminId} performed {Action} on user {TargetUserId} (user and data removed)", _currentUser.UserId, action, user.Id);
 
         return Result<object?>.Success(null);
     }
@@ -130,7 +137,10 @@ public class AccessService : IAccessService
         if (user is null)
             return Result<User>.Failure("Member not found.", ErrorStatus.NotFound);
         if (user.Role == UserRole.Admin)
+        {
+            _logger.LogWarning("Admin {AdminId} attempted to modify admin account {TargetUserId}", _currentUser.UserId, id);
             return Result<User>.Failure("Admin accounts can't be changed from here.", ErrorStatus.Forbidden);
+        }
         if (!allowed.Contains(user.Status))
             return Result<User>.Failure($"This member is {user.Status.ToString().ToLowerInvariant()}, so that action doesn't apply.", ErrorStatus.Duplicate);
 

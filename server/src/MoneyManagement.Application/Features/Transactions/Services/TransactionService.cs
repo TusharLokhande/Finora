@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Dashboard;
 using MoneyManagement.Application.Common.Export;
@@ -20,19 +21,22 @@ public class TransactionService : ITransactionService
     private readonly ICategoryRepository _categories;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IExcelExportWriter _excel;
+    private readonly ILogger<TransactionService> _logger;
 
     public TransactionService(
         ITransactionRepository transactions,
         IAccountRepository accounts,
         ICategoryRepository categories,
         IUnitOfWork unitOfWork,
-        IExcelExportWriter excel)
+        IExcelExportWriter excel,
+        ILogger<TransactionService> logger)
     {
         _transactions = transactions;
         _accounts = accounts;
         _categories = categories;
         _unitOfWork = unitOfWork;
         _excel = excel;
+        _logger = logger;
     }
 
     private const int MaxPageSize = 100;
@@ -79,6 +83,7 @@ public class TransactionService : ITransactionService
         }, cancellationToken);
 
         await _excel.WriteAsync([ToSheet(all.Items)], output, cancellationToken);
+        _logger.LogInformation("User {UserId} exported {Count} transactions", userId, all.Items.Count);
         return Result<int>.Success(all.Items.Count);
     }
 
@@ -104,6 +109,7 @@ public class TransactionService : ITransactionService
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} bulk {Verb} {Count} transactions", userId, verb, transactions.Count);
         return Result<int>.Success(transactions.Count, $"{transactions.Count} transaction(s) {verb}.");
     }
 
@@ -133,6 +139,7 @@ public class TransactionService : ITransactionService
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} re-categorized {Count} transactions to category {CategoryId}", userId, transactions.Count, category.Id);
         return Result<int>.Success(transactions.Count, $"{transactions.Count} transaction(s) re-categorized.");
     }
 
@@ -186,6 +193,7 @@ public class TransactionService : ITransactionService
 
         await _transactions.AddAsync(transaction, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} created {Type} transaction {TransactionId}", userId, transaction.Type, transaction.Id);
 
         return Result<TransactionDto>.Success(MapToDto(transaction), "Transaction created.");
     }
@@ -212,6 +220,7 @@ public class TransactionService : ITransactionService
 
         _transactions.Update(transaction);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} updated transaction {TransactionId}", userId, transaction.Id);
 
         return Result<TransactionDto>.Success(MapToDto(transaction), "Transaction updated.");
     }
@@ -235,6 +244,7 @@ public class TransactionService : ITransactionService
             transaction.UpdatedAtUtc = DateTime.UtcNow;
             _transactions.Update(transaction);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("User {UserId} set transaction {TransactionId} active = {Active}", userId, id, active);
         }
 
         return Result<TransactionDto>.Success(MapToDto(transaction), message);

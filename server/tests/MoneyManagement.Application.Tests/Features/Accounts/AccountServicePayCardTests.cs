@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using MoneyManagement.Application.Features.Accounts.Requests;
 using MoneyManagement.Application.Features.Accounts.Services;
@@ -55,8 +56,8 @@ public class AccountServicePayCardTests
         var categoryRepository = new CategoryRepository(context);
         var unitOfWork = new UnitOfWork(context);
 
-        var transactionService = new TransactionService(transactionRepository, accountRepository, categoryRepository, unitOfWork, new ExcelExportWriter());
-        var accountService = new AccountService(accountRepository, transactionRepository, transactionService, unitOfWork);
+        var transactionService = new TransactionService(transactionRepository, accountRepository, categoryRepository, unitOfWork, new ExcelExportWriter(), NullLogger<TransactionService>.Instance);
+        var accountService = new AccountService(accountRepository, transactionRepository, transactionService, unitOfWork, NullLogger<AccountService>.Instance);
 
         return (context, accountService, userId, bank, card);
     }

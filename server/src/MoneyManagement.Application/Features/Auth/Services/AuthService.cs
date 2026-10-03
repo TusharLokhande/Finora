@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Interfaces;
 using MoneyManagement.Application.Features.Access.Interfaces;
@@ -16,6 +17,7 @@ public class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAppSettingRepository _settings;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IUserRepository users,
@@ -23,7 +25,8 @@ public class AuthService : IAuthService
         IGoogleOAuthClient googleOAuthClient,
         ITokenService tokenService,
         IUnitOfWork unitOfWork,
-        IAppSettingRepository settings)
+        IAppSettingRepository settings,
+        ILogger<AuthService> logger)
     {
         _users = users;
         _refreshTokens = refreshTokens;
@@ -31,6 +34,7 @@ public class AuthService : IAuthService
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
         _settings = settings;
+        _logger = logger;
     }
 
     public GoogleAuthorizationRequest BuildGoogleAuthorizationRequest()
@@ -51,7 +55,10 @@ public class AuthService : IAuthService
         if (user is null)
         {
             if (!await _settings.GetSignupsOpenAsync(cancellationToken))
+            {
+                _logger.LogWarning("Sign-up rejected: new requests are closed");
                 return Result<RawRefreshToken>.Failure("We're not accepting new requests right now.", ErrorStatus.Forbidden);
+            }
 
             user = new User
             {
@@ -62,9 +69,13 @@ public class AuthService : IAuthService
                 LastLoginAtUtc = now,
             };
             await _users.AddAsync(user, cancellationToken);
+            _logger.LogInformation("New access request created for user {UserId}", user.Id);
         }
         else
         {
+            // Heal rows created while Google sent no name (Name fell back to the email).
+            if (user.Name == user.Email && identity.Name != identity.Email)
+                user.Name = identity.Name;
             user.EmailVerifiedAtUtc ??= now;
             user.LastLoginAtUtc = now;
             _users.Update(user);
@@ -79,6 +90,7 @@ public class AuthService : IAuthService
         }, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} signed in via Google (status {Status})", user.Id, user.Status);
 
         return Result<RawRefreshToken>.Success(refreshToken);
     }
@@ -100,7 +112,11 @@ public class AuthService : IAuthService
         var existing = await _refreshTokens.GetByTokenHashAsync(hash, cancellationToken);
 
         if (existing is null || existing.RevokedAtUtc is not null || existing.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            // A revoked token being replayed is the signal worth alerting on.
+            _logger.LogWarning("Refresh rejected: token {Reason}", existing is null ? "unknown" : existing.RevokedAtUtc is not null ? "already revoked (possible reuse)" : "expired");
             return Result<RefreshedSession>.Failure("Session expired. Please sign in again.", ErrorStatus.UnAuthorized);
+        }
 
         var user = await _users.GetByIdAsync(existing.UserId, cancellationToken);
         if (user is null)
@@ -139,6 +155,7 @@ public class AuthService : IAuthService
         existing.RevokedAtUtc = DateTime.UtcNow;
         _refreshTokens.Update(existing);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} signed out", existing.UserId);
     }
 
     private static AuthUserDto ToDto(User user)

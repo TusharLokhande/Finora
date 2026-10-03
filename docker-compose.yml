@@ -3,7 +3,8 @@ services:
     build: ./server
     env_file: ./server/src/MoneyManagement.Api/.env
     ports:
-      - "8080:8080"
+      - "8081:8080"
+    networks: [default, observability]
     depends_on:
       postgres:
         condition: service_healthy
@@ -12,9 +13,9 @@ services:
     build:
       context: ./client
       args:
-        VITE_API_BASE_URL: http://localhost:8080/api 
+        VITE_API_BASE_URL: http://localhost:8081/api
     ports:
-      - "80:80"
+      - "81:80"
     depends_on: [api]
 
   postgres:
@@ -36,3 +37,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+networks:
+  observability:
+    external: true

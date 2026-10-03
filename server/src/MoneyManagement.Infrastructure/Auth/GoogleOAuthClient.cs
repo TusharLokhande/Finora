@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,11 +17,13 @@ public class GoogleOAuthClient : IGoogleOAuthClient
 
     private readonly HttpClient _httpClient;
     private readonly GoogleAuthOptions _options;
+    private readonly ILogger<GoogleOAuthClient> _logger;
 
-    public GoogleOAuthClient(HttpClient httpClient, IOptions<GoogleAuthOptions> options)
+    public GoogleOAuthClient(HttpClient httpClient, IOptions<GoogleAuthOptions> options, ILogger<GoogleOAuthClient> logger)
     {
         _httpClient = httpClient;
         _options = options.Value;
+        _logger = logger;
     }
 
     public GooglePkceChallenge CreatePkceChallenge()
@@ -64,6 +67,8 @@ public class GoogleOAuthClient : IGoogleOAuthClient
         });
 
         using var response = await _httpClient.PostAsync(TokenEndpoint, form, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            _logger.LogError("Google token exchange failed with status {StatusCode}", (int)response.StatusCode);
         response.EnsureSuccessStatusCode();
 
         var payload = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken)
@@ -74,10 +79,19 @@ public class GoogleOAuthClient : IGoogleOAuthClient
 
     public async Task<GoogleIdentity> ValidateIdTokenAsync(string idToken, CancellationToken cancellationToken = default)
     {
-        var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+        GoogleJsonWebSignature.Payload payload;
+        try
         {
-            Audience = [_options.ClientId],
-        });
+            payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = [_options.ClientId],
+            });
+        }
+        catch (InvalidJwtException ex)
+        {
+            _logger.LogWarning(ex, "Google ID token validation failed");
+            throw;
+        }
 
         return new GoogleIdentity(payload.Subject, payload.Email, payload.Name ?? payload.Email);
     }

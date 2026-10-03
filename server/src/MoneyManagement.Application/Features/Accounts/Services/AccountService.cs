@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Features.Accounts.Dto;
 using MoneyManagement.Application.Features.Accounts.Interfaces;
@@ -16,17 +17,20 @@ public class AccountService : IAccountService
     private readonly ITransactionRepository _transactionRepository;
     private readonly ITransactionService _transactionService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AccountService> _logger;
 
     public AccountService(
         IAccountRepository accounts,
         ITransactionRepository transactionRepository,
         ITransactionService transactionService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ILogger<AccountService> logger)
     {
         _accounts = accounts;
         _transactionRepository = transactionRepository;
         _transactionService = transactionService;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<Result<IReadOnlyList<AccountDto>>> GetAllAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -73,6 +77,7 @@ public class AccountService : IAccountService
 
         await _accounts.AddAsync(account, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("User {UserId} created {Type} account {AccountId}", userId, account.Type, account.Id);
 
         return Result<AccountDto>.Success(MapToDto(account, delta: 0), "Account created.");
     }
@@ -121,6 +126,7 @@ public class AccountService : IAccountService
             account.UpdatedAtUtc = DateTime.UtcNow;
             _accounts.Update(account);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("User {UserId} archived account {AccountId}", userId, id);
         }
 
         return Result<AccountDto>.Success(await BuildDtoAsync(userId, account, cancellationToken), "Account archived.");
@@ -142,6 +148,7 @@ public class AccountService : IAccountService
             account.UpdatedAtUtc = DateTime.UtcNow;
             _accounts.Update(account);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("User {UserId} restored account {AccountId}", userId, id);
         }
 
         return Result<AccountDto>.Success(await BuildDtoAsync(userId, account, cancellationToken), "Account restored.");
@@ -201,6 +208,7 @@ public class AccountService : IAccountService
         if (!transactionResult.IsSuccess)
             return Result<AccountDto>.Failure(transactionResult.Message, transactionResult.ErrorStatus);
 
+        _logger.LogInformation("User {UserId} paid card {AccountId} from account {SourceAccountId}", userId, cardAccountId, request.SourceAccountId);
         return Result<AccountDto>.Success(await BuildDtoAsync(userId, card, cancellationToken), "Payment recorded.");
     }
 

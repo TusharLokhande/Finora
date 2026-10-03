@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using MoneyManagement.Application.Common;
 using MoneyManagement.Application.Common.Interfaces;
@@ -45,11 +46,11 @@ public class AccessServiceTests
         {
             Context.Users.Add(Admin);
             Context.SaveChanges();
-            Access = new AccessService(new UserRepository(Context), new AdminAuditLogRepository(Context), new AppSettingRepository(Context), new FakeCurrentUser(Admin.Id), new UnitOfWork(Context));
+            Access = new AccessService(new UserRepository(Context), new AdminAuditLogRepository(Context), new AppSettingRepository(Context), new FakeCurrentUser(Admin.Id), new UnitOfWork(Context), NullLogger<AccessService>.Instance);
         }
 
         public AuthService AuthFor(string email) => new(
-            new UserRepository(Context), new RefreshTokenRepository(Context), new FakeGoogle(email), new FakeTokens(), new UnitOfWork(Context), new AppSettingRepository(Context));
+            new UserRepository(Context), new RefreshTokenRepository(Context), new FakeGoogle(email), new FakeTokens(), new UnitOfWork(Context), new AppSettingRepository(Context), NullLogger<AuthService>.Instance);
 
         public User AddUser(UserStatus status, string email = "person@example.com")
         {

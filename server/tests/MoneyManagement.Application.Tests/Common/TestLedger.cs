@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using MoneyManagement.Application.Common.Services;
 using MoneyManagement.Application.Features.Accounts.Services;
@@ -63,8 +64,8 @@ public class TestLedger
         var categories = new CategoryRepository(Context);
         var unitOfWork = new UnitOfWork(Context);
 
-        Transactions = new TransactionService(transactions, accounts, categories, unitOfWork, new ExcelExportWriter());
-        var accountService = new AccountService(accounts, transactions, Transactions, unitOfWork);
+        Transactions = new TransactionService(transactions, accounts, categories, unitOfWork, new ExcelExportWriter(), NullLogger<TransactionService>.Instance);
+        var accountService = new AccountService(accounts, transactions, Transactions, unitOfWork, NullLogger<AccountService>.Instance);
 
         Budgets = new BudgetService(new BudgetRepository(Context), categories, transactions, unitOfWork);
 
