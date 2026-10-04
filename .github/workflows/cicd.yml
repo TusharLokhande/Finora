@@ -30,10 +30,12 @@ jobs:
             echo "image_tag=latest" >> "$GITHUB_OUTPUT"
             echo "deploy_path=/opt/apps/finora/prod" >> "$GITHUB_OUTPUT"
             echo "build_env=production" >> "$GITHUB_OUTPUT"
+            echo "api_base_url=https://api-finora.tushar.sbs" >> "$GITHUB_OUTPUT"
           else
             echo "image_tag=dev" >> "$GITHUB_OUTPUT"
             echo "deploy_path=/opt/apps/finora/dev" >> "$GITHUB_OUTPUT"
             echo "build_env=development" >> "$GITHUB_OUTPUT"
+            echo "api_base_url=https://api-finora-dev.tushar.sbs" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Set up Docker Buildx
@@ -70,6 +72,8 @@ jobs:
           tags: |
             ghcr.io/tusharlokhande/finora-client:${{ steps.vars.outputs.image_tag }}
             ghcr.io/tusharlokhande/finora-client:sha-${{ github.sha }}
+          build-args: |
+            VITE_API_BASE_URL=${{ steps.vars.outputs.api_base_url }}
           cache-from: type=gha,scope=client
           cache-to: type=gha,scope=client,mode=max
 
