@@ -10,6 +10,11 @@ on:
       - main
       - dev
 
+
+env:
+  IMAGE_TAG: ""
+  DEPLOY_PATH: ""
+
 jobs:
     build: 
         runs-on: ubuntu-latest
@@ -18,6 +23,17 @@ jobs:
             name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
 
         steps:
+          - name: Set environment variables
+            run: |
+                if [ "${{ github.ref_name }}" = "main" ]; then
+                echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+                echo "DEPLOY_PATH=/opt/apps/finora/prod" >> $GITHUB_ENV
+
+                elif [ "${{ github.ref_name }}" = "dev" ]; then
+                echo "IMAGE_TAG=dev" >> $GITHUB_ENV
+                echo "DEPLOY_PATH=/opt/apps/finora/dev" >> $GITHUB_ENV
+                fi
+
           - name: Checkout code
             uses: actions/checkout@v4
 
@@ -37,7 +53,7 @@ jobs:
               context: ./server
               file: ./server/Dockerfile
               push: true
-              tags: ghcr.io/tusharlokhande/finora-api:${{ github.ref_name }}
+              tags: ghcr.io/${{ github.actor }}/finora-api:${{ github.ref_name }}
               build-args: |
                 ENVIRONMENT=${{ github.ref_name }}
 
@@ -47,7 +63,7 @@ jobs:
               context: ./client
               file: ./client/Dockerfile
               push: true
-              tags: ghcr.io/tusharlokhande/finora-client:${{ github.ref_name }}
+              tags: ghcr.io/${{ github.actor }}/finora-client:${{ github.ref_name }}
         
     deploy: 
         runs-on: ubuntu-latest
@@ -65,23 +81,11 @@ jobs:
               ssh \
                 -i ~/.ssh/github_actions_finora \
                 -p 2222 \
-                -o StrictHostKeyChecking=no \
                 deploy@ssh.tushar.sbs 
           
-          - name: Go to project production directory
-            if: ${{ github.ref_name == 'main' }}
-            working-directory: /opt/apps/finora/prod
+          - name: Deploy Docker Compose
+            working-directory: ${{ env.DEPLOY_PATH }}
             run: |
                 docker-compose down 
                 docker compose pull
-                docker compose up -d --build 
-
-          - name: Go to project development directory
-            if: ${{ github.ref_name == 'dev' }}
-            working-directory: /opt/apps/finora/dev
-            run: |
-                docker-compose down 
-                docker compose pull
-                docker compose up -d --build 
-
-
+                docker compose up -d --build
