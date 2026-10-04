@@ -1,0 +1,24 @@
+name: Test SSH
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.FINORA_SSH_PRIVATE_KEY }}" > ~/.ssh/github_actions_finora
+          chmod 600 ~/.ssh/github_actions_finora
+
+      - name: Test SSH connection
+        run: |
+          ssh \
+            -i ~/.ssh/github_actions_finora \
+            -p 2222 \
+            -o StrictHostKeyChecking=no \
+            deploy@ssh.tushar.sbs \
+            "whoami && hostname"
