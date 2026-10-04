@@ -53,7 +53,7 @@ jobs:
               context: ./server
               file: ./server/Dockerfile
               push: true
-              tags: ghcr.io/${{ github.actor }}/finora-api:${{ github.ref_name }}
+              tags: ghcr.io/tusharlokhande/finora-api:${{ env.IMAGE_TAG }}
               build-args: |
                 ENVIRONMENT=${{ github.ref_name }}
 
@@ -63,7 +63,7 @@ jobs:
               context: ./client
               file: ./client/Dockerfile
               push: true
-              tags: ghcr.io/${{ github.actor }}/finora-client:${{ github.ref_name }}
+              tags: ghcr.io/tusharlokhande/finora-client:${{ env.IMAGE_TAG }}
         
     deploy: 
         runs-on: ubuntu-latest
