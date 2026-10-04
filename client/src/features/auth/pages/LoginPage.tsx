@@ -1,4 +1,4 @@
-import { ShieldCheck, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/ui/button";
 import { GoogleIcon } from "@/features/auth/components/GoogleIcon";
@@ -78,23 +78,7 @@ export function LoginPage() {
             We only use your Google account to verify it&apos;s you.
           </p>
 
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">new here</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button asChild variant="secondary" size="lg" className="w-full rounded-full">
-            <a href={GOOGLE_LOGIN_URL}>
-              <ShieldCheck />
-              Ask for approval
-            </a>
-          </Button>
         </div>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Finora is invite-only. Access requests are reviewed by the owner.
-        </p>
       </div>
     </div>
   );

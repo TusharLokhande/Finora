@@ -27,7 +27,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <NavLink to="/">
+              <NavLink to="/home">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <Wallet className="size-4" />
                 </div>
@@ -44,10 +44,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                const isActive =
-                  item.url === "/"
-                    ? location.pathname === "/"
-                    : location.pathname.startsWith(item.url);
+                const isActive = location.pathname.startsWith(item.url);
 
                 return (
                   <SidebarMenuItem key={item.title}>

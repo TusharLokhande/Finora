@@ -16,7 +16,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { title: "Home", url: "/", icon: Home },
+  { title: "Home", url: "/home", icon: Home },
   { title: "Transactions", url: "/transactions", icon: ArrowRightLeft },
   { title: "Accounts", url: "/accounts", icon: Landmark },
   { title: "Categories", url: "/categories", icon: Tags },

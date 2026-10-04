@@ -12,7 +12,7 @@ export function AuthCallbackPage() {
     ran.current = true;
 
     refreshAccessToken()
-      .then(() => navigate("/", { replace: true }))
+      .then(() => navigate("/home", { replace: true }))
       .catch(() => navigate("/login", { replace: true }));
   }, [navigate]);
 

@@ -64,7 +64,7 @@ public class AuthService : IAuthService
             {
                 Name = identity.Name,
                 Email = identity.Email,
-                Status = UserStatus.Pending,
+                Status = UserStatus.Approved,
                 EmailVerifiedAtUtc = now,
                 LastLoginAtUtc = now,
             };
@@ -76,6 +76,9 @@ public class AuthService : IAuthService
             // Heal rows created while Google sent no name (Name fell back to the email).
             if (user.Name == user.Email && identity.Name != identity.Email)
                 user.Name = identity.Name;
+            // Approval wall removed: release anyone still waiting from before.
+            if (user.Status == UserStatus.Pending)
+                user.Status = UserStatus.Approved;
             user.EmailVerifiedAtUtc ??= now;
             user.LastLoginAtUtc = now;
             _users.Update(user);

@@ -31,7 +31,7 @@ export function AccessPage() {
   const [tab, setTab] = useState("All");
 
   // Backend enforces this too; this just keeps non-admins off a page that would only show errors.
-  if (me && me.role !== "Admin") return <Navigate to="/" replace />;
+  if (me && me.role !== "Admin") return <Navigate to="/home" replace />;
 
   const members = (data?.items ?? []).filter((m) => tab === "All" || m.status === tab);
 
