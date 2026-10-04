@@ -30,12 +30,12 @@ jobs:
             echo "image_tag=latest" >> "$GITHUB_OUTPUT"
             echo "deploy_path=/opt/apps/finora/prod" >> "$GITHUB_OUTPUT"
             echo "build_env=production" >> "$GITHUB_OUTPUT"
-            echo "api_base_url=https://api-finora.tushar.sbs" >> "$GITHUB_OUTPUT"
+            echo "api_base_url=https://api-finora.efficanova.com" >> "$GITHUB_OUTPUT"
           else
             echo "image_tag=dev" >> "$GITHUB_OUTPUT"
             echo "deploy_path=/opt/apps/finora/dev" >> "$GITHUB_OUTPUT"
             echo "build_env=development" >> "$GITHUB_OUTPUT"
-            echo "api_base_url=https://api-finora-dev.tushar.sbs" >> "$GITHUB_OUTPUT"
+            echo "api_base_url=https://api-finora-dev.efficanova.com" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Set up Docker Buildx
