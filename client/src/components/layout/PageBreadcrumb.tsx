@@ -19,7 +19,7 @@ export function PageBreadcrumb({ items }: PageBreadcrumbProps) {
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/">Home</Link>
+            <Link to="/home">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {items.map((item, index) => (

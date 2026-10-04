@@ -8,6 +8,7 @@ import { AccessPage } from "@/features/access";
 import { AccountsPage } from "@/features/accounts";
 import { CategoriesPage } from "@/features/categories";
 import { TransactionsPage } from "@/features/transactions";
+import { LandingPage } from "@/features/landing";
 import { HomePage } from "@/features/dashboard";
 import { BudgetsPage } from "@/features/budgets";
 import { SettingsPage } from "@/features/settings";
@@ -27,11 +28,12 @@ function App() {
         <Toaster />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route element={<RequireAuth />}>
-              <Route path="/" element={<RootLayout />}>
-                <Route index element={<HomePage />} />
+              <Route element={<RootLayout />}>
+                <Route path="home" element={<HomePage />} />
                 <Route path="transactions" element={<TransactionsPage />} />
                 <Route path="accounts" element={<AccountsPage />} />
                 <Route path="categories" element={<CategoriesPage />} />
