@@ -26,7 +26,7 @@ jobs:
           - name: Set environment variables
             run: |
                 if [ "${{ github.ref_name }}" = "main" ]; then
-                    echo "IMAGE_TAG=" 
+                    echo "IMAGE_TAG=latest" >> $GITHUB_ENV
                     echo "DEPLOY_PATH=/opt/apps/finora/prod" >> $GITHUB_ENV
 
                 elif [ "${{ github.ref_name }}" = "dev" ]; then
