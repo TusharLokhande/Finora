@@ -35,7 +35,7 @@ jobs:
             uses: docker/build-push-action@v5
             with:
               context: ./server
-              file: ./server/src/Dockerfile
+              file: ./server/Dockerfile
               push: true
               tags: ghcr.io/tusharlokhande/finora-api:${{ github.ref_name }}
               build-args: |
