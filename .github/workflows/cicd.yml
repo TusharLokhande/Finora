@@ -34,8 +34,8 @@ jobs:
           - name: Build and push API image
             uses: docker/build-push-action@v5
             with:
-              context: ./server/src/MoneyManagement.Api
-              file: ./server/src/MoneyManagement.Api/Dockerfile
+              context: ./server
+              file: ./server/src/Dockerfile
               push: true
               tags: ghcr.io/tusharlokhande/finora-api:${{ github.ref_name }}
               build-args: |
@@ -44,8 +44,8 @@ jobs:
           - name: Build and push Client image
             uses: docker/build-push-action@v5
             with:
-              context: ./client/src/MoneyManagement.Client
-              file: ./client/src/MoneyManagement.Client/Dockerfile
+              context: ./client
+              file: ./client/Dockerfile
               push: true
               tags: ghcr.io/tusharlokhande/finora-client:${{ github.ref_name }}
         
@@ -76,7 +76,7 @@ jobs:
                 docker compose pull
                 docker compose up -d --build 
 
-          - name: Go to project production directory
+          - name: Go to project development directory
             if: ${{ github.ref_name == 'dev' }}
             working-directory: /opt/apps/finora/dev
             run: |
