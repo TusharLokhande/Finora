@@ -1,0 +1,87 @@
+name: "CI/CD"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+    build: 
+        runs-on: ubuntu-latest
+        
+        environment:
+            name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v2
+
+          - name: Log in to GitHub Container Registry
+            uses: docker/login-action@v2
+            with:
+              registry: ghcr.io
+              username: ${{ github.actor }}
+              password: ${{ secrets.GITHUB_TOKEN }}
+
+          - name: Build and push API image
+            uses: docker/build-push-action@v5
+            with:
+              context: ./server/src/MoneyManagement.Api
+              file: ./server/src/MoneyManagement.Api/Dockerfile
+              push: true
+              tags: ghcr.io/tusharlokhande/finora-api:${{ github.ref_name }}
+              build-args: |
+                ENVIRONMENT=${{ github.ref_name }}
+
+          - name: Build and push Client image
+            uses: docker/build-push-action@v5
+            with:
+              context: ./client/src/MoneyManagement.Client
+              file: ./client/src/MoneyManagement.Client/Dockerfile
+              push: true
+              tags: ghcr.io/tusharlokhande/finora-client:${{ github.ref_name }}
+        
+    deploy: 
+        runs-on: ubuntu-latest
+        needs: build
+
+        steps:
+          - name: Setup SSH key
+            run: |
+              mkdir -p ~/.ssh
+              echo "${{ secrets.FINORA_SSH_PRIVATE_KEY }}" > ~/.ssh/github_actions_finora
+              chmod 600 ~/.ssh/github_actions_finora
+
+          - name: Deploy to server
+            run: |
+              ssh \
+                -i ~/.ssh/github_actions_finora \
+                -p 2222 \
+                -o StrictHostKeyChecking=no \
+                deploy@ssh.tushar.sbs 
+          
+          - name: Go to project production directory
+            if: ${{ github.ref_name == 'main' }}
+            working-directory: /opt/apps/finora/prod
+            run: |
+                docker-compose down 
+                docker compose pull
+                docker compose up -d --build 
+
+          - name: Go to project production directory
+            if: ${{ github.ref_name == 'dev' }}
+            working-directory: /opt/apps/finora/dev
+            run: |
+                docker-compose down 
+                docker compose pull
+                docker compose up -d --build 
+
+
