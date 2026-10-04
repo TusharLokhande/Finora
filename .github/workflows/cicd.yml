@@ -26,13 +26,22 @@ jobs:
           - name: Set environment variables
             run: |
                 if [ "${{ github.ref_name }}" = "main" ]; then
-                echo "IMAGE_TAG=latest" >> $GITHUB_ENV
-                echo "DEPLOY_PATH=/opt/apps/finora/prod" >> $GITHUB_ENV
+                    echo "IMAGE_TAG=" 
+                    echo "DEPLOY_PATH=/opt/apps/finora/prod" >> $GITHUB_ENV
 
                 elif [ "${{ github.ref_name }}" = "dev" ]; then
-                echo "IMAGE_TAG=dev" >> $GITHUB_ENV
-                echo "DEPLOY_PATH=/opt/apps/finora/dev" >> $GITHUB_ENV
+                    echo "IMAGE_TAG=dev" >> $GITHUB_ENV
+                    echo "DEPLOY_PATH=/opt/apps/finora/dev" >> $GITHUB_ENV
                 fi
+          
+          - name: List files
+            run: |
+                ls -la
+                echo "Current branch: ${{ github.ref_name }}"
+                echo "Image tag: ${{ env.IMAGE_TAG }}"
+                echo "Deploy path: ${{ env.DEPLOY_PATH }}"
+                echo "Environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}"
+                echo "Secrets: ${{ secrets.FINORA_SSH_PRIVATE_KEY }} ${{ secrets.GITHUB_TOKEN }}"
 
           - name: Checkout code
             uses: actions/checkout@v4
